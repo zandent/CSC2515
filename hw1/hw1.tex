@@ -4,6 +4,8 @@
 \usepackage{makecell}
 \usepackage[a4paper, total={6in, 9in}]{geometry}
 \usepackage{authblk}
+\usepackage{graphicx}
+\graphicspath{{.}}
 \author{Zihan Zhao}
 \affil{1001103708}
 \title{Homework 1}
@@ -61,14 +63,27 @@ Second determine $Var[R]$. Since $Z_1,..,Z_d$ are independent, $Cov(Z_i,Z_j)=0$ 
 \end{align*}
 \section{}
 \subsection{}
+\includegraphics{2a.png}
 \subsection{}
+No, it is not unique.
 \subsection{}
+0. The left side of the boundary marks "+" and the right side marks "-". All "+" points are in left side and all "-" points are in right side.
 \subsection{}
+\label{sec:2d}
+As $\lambda$ approaches $\infty$, $J(w)$ heavily depends on $\lambda\omega_0^2$. In order to minimize $\lambda\omega_0^2$, $\omega_0$ should be 0. So the boundary should pass through (0,0). The sketch is shown below.\\
+\includegraphics{2d.png}
 \subsection{}
+1. The upper side of the boundary marks "+" and the down side marks "-". All "+" points are in left side except one point is at down side. All "-" points are in right side. So the error is 1.
 \subsection{}
+Similar with \ref{sec:2d}, in order to minimize $\lambda\omega_1^2$, $\omega_1$ should be 0. So the boundary line is $\omega_0 + \omega_2x_2 = 0$. It should be a horizontal line. The sketch is shown below.\\
+\includegraphics{2f.png}
 \subsection{}
+2. The upper side of the boundary marks "+" and the down side marks "-". All "+" points are in left side except one point is at down side. All "-" points are in right side except one point is at upper side. So the error is 2.
 \subsection{}
+Similar with \ref{sec:2d}, in order to minimize $\lambda\omega_2^2$, $\omega_2$ should be 0. So the boundary line is $\omega_0 + \omega_1x_1 = 0$. It should be a vertical line. The sketch is shown below.\\
+\includegraphics{2h.png}
 \subsection{}
+0. The left side of the boundary marks "+" and the right side marks "-". All "+" points are in left side and all "-" points are in right side.
 \section{}
 \subsection{}
 Since $p(x)$ is possibility mass, $0\leq p(x)\leq 1$. Therefore,
@@ -115,6 +130,11 @@ On right side,
 note that $p(y|x) =\frac{p(x,y)}{p(x)}$
 \begin{align*}
     KL(p(x,y)||p(x)p(y)) &= \sum_{y}\sum_{x} p(x,y)\log(\frac{p(y|x)}{p(y)})\\
-    &= \sum_{y}\sum_{x} (p(x,y)(\log(p(y|x))+\log(\frac{1}{p(y)})))
+    &= \sum_{y}\sum_{x} (p(x,y)(\log(p(y|x))+\log(\frac{1}{p(y)})))\\
+    &= \sum_{y}\sum_{x} (p(x,y)(\log(p(y|x)))+\sum_{y}\sum_{x}(p(x,y)\log(\frac{1}{p(y)})))\\
+    &= \sum_{y}\sum_{x} (p(x,y)(\log(p(y|x)))+\sum_{y}(p(y)\log(\frac{1}{p(y)})))\\
+    &= I[Y;X]
 \end{align*}
+Therefore right side is equal to left side.\\
+Done.
 \end{document}
