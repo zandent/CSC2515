@@ -6,7 +6,9 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.datasets import load_boston
-from scipy.misc import logsumexp
+from scipy.special import logsumexp
+#from scipy.misc import logsumexp
+
 np.random.seed(0)
 
 # load boston housing prices dataset
@@ -46,21 +48,26 @@ def LRLS(test_datum,x_train,y_train, tau,lam=1e-5):
     '''
     N_train = x_train.shape[0]
     d_train = x_train.shape[1]
+    test_datum = test_datum.reshape((test_datum.shape[0],1))
+    #print(test_datum.shape)
     dist = l2(test_datum.T, x_train)
     nume = -dist.T/(2*tau**2)
+    #nume = nume-np.amax(nume)
     deno = logsumexp(nume)
     a = np.exp(nume-deno)
-    A = np.matmul(np.identity(N_train), a)
+    #print(nume.shape)
+    #print(np.repeat(a,N_train,axis=1).shape)
+    A = np.identity(N_train)
+    np.fill_diagonal(A,a)
+    #print("A is ", A[0,:])
+    #print("2A is ", A[1,:])
     I = np.identity(d_train)
+    #print(A.shape, " ", x_train.shape)
     M1 = np.matmul(np.matmul(x_train.T,A),x_train)+lam*I
     M2 = np.matmul(np.matmul(x_train.T,A),y_train)
     w = np.linalg.solve(M1,M2)
     y_pred = np.matmul(test_datum.T,w)
     return y_pred
-
-
-
-
 def run_validation(x,y,taus,val_frac):
     '''
     Input: x is the N x d design matrix
@@ -82,23 +89,31 @@ def run_validation(x,y,taus,val_frac):
     loss_tr = []
     loss_val = []
     for i in taus:
+        print("-------------- tau is ", i," --------------")
         y_pred = []
         y_val_pred = []
         for j in range(x_train.shape[0]):
             y_pred.append(LRLS(x_train[j,:].T,x_train,y_train,i))
         for j in range(x_val.shape[0]):
             y_val_pred.append(LRLS(x_val[j,:].T,x_train,y_train,i))
-        loss_tr.append(0.5*np.mean((y_pred-y_train)**2))
-        loss_val.append(0.5*np.mean((y_val_pred-y_val)**2))
+        #print("loss_tr is ", 0.5*mean_squared_error(y_pred,y_train))
+        #print("loss_val is ", 0.5*mean_squared_error(y_val_pred,y_val))
+        #loss_tr.append(0.5*mean_squared_error(y_pred,y_train))
+        #loss_val.append(0.5*mean_squared_error(y_val_pred,y_val))
+        print("loss_tr is ", 0.5*np.mean((np.asarray(y_pred)-y_train.reshape((y_train.shape[0],1)))**2))
+        print("loss_val is ", 0.5*np.mean((np.asarray(y_val_pred)-y_val.reshape((y_val.shape[0],1)))**2))
+        loss_tr.append( 0.5*np.mean((np.asarray(y_pred)-y_train.reshape((y_train.shape[0],1)))**2))
+        loss_val.append( 0.5*np.mean((np.asarray(y_val_pred)-y_val.reshape((y_val.shape[0],1)))**2))
 
     return loss_tr, loss_val
 
 if __name__ == "__main__":
     # In this excersice we fixed lambda (hard coded to 1e-5) and only set tau value. Feel free to play with lambda as well if you wish
-    taus = np.logspace(1.0,3,200)
+    taus = np.logspace(1.0,3,20)
     train_losses, test_losses = run_validation(x,y,taus,val_frac=0.3)
-    plt.semilogx(train_losses)
-    plt.semilogx(test_losses)
+    plt.semilogx(taus,train_losses,label="train loss")
+    plt.semilogx(taus,test_losses,label="validation loss")
+    #plt.axis([10, 1000, 0, 100])
     plt.legend()
     plt.show()
 
