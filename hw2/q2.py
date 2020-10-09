@@ -6,6 +6,7 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.datasets import load_boston
+from scipy.misc import logsumexp
 np.random.seed(0)
 
 # load boston housing prices dataset
@@ -43,9 +44,19 @@ def LRLS(test_datum,x_train,y_train, tau,lam=1e-5):
            lam is the regularization parameter
     output is y_hat the prediction on test_datum
     '''
-    ## TODO
-    return None
-    ## TODO
+    N_train = x_train.shape[0]
+    d_train = x_train.shape[1]
+    dist = l2(test_datum.T, x_train)
+    nume = -dist.T/(2*tau**2)
+    deno = logsumexp(nume)
+    a = np.exp(nume-deno)
+    A = np.matmul(np.identity(N_train), a)
+    I = np.identity(d_train)
+    M1 = np.matmul(np.matmul(x_train.T,A),x_train)+lam*I
+    M2 = np.matmul(np.matmul(x_train.T,A),y_train)
+    w = np.linalg.solve(M1,M2)
+    y_pred = np.matmul(test_datum.T,w)
+    return y_pred
 
 
 
@@ -60,10 +71,27 @@ def run_validation(x,y,taus,val_frac):
            a vector of training losses, one for each tau value
            a vector of validation losses, one for each tau value
     '''
-    ## TODO
-    return None
-    ## TODO
+    valid_batch = int(x.shape[0] * val_frac)
+    np.random.seed(45689)
+    rnd_idx = np.arange(x.shape[0])
+    np.random.shuffle(rnd_idx)
+    x_val = x[rnd_idx[:valid_batch]]
+    x_train = x[rnd_idx[valid_batch:]]
+    y_val = y[rnd_idx[:valid_batch]]
+    y_train = y[rnd_idx[valid_batch:]]
+    loss_tr = []
+    loss_val = []
+    for i in taus:
+        y_pred = []
+        y_val_pred = []
+        for j in range(x_train.shape[0]):
+            y_pred.append(LRLS(x_train[j,:].T,x_train,y_train,i))
+        for j in range(x_val.shape[0]):
+            y_val_pred.append(LRLS(x_val[j,:].T,x_train,y_train,i))
+        loss_tr.append(0.5*np.mean((y_pred-y_train)**2))
+        loss_val.append(0.5*np.mean((y_val_pred-y_val)**2))
 
+    return loss_tr, loss_val
 
 if __name__ == "__main__":
     # In this excersice we fixed lambda (hard coded to 1e-5) and only set tau value. Feel free to play with lambda as well if you wish
@@ -71,3 +99,6 @@ if __name__ == "__main__":
     train_losses, test_losses = run_validation(x,y,taus,val_frac=0.3)
     plt.semilogx(train_losses)
     plt.semilogx(test_losses)
+    plt.legend()
+    plt.show()
+
