@@ -49,20 +49,13 @@ def LRLS(test_datum,x_train,y_train, tau,lam=1e-5):
     N_train = x_train.shape[0]
     d_train = x_train.shape[1]
     test_datum = test_datum.reshape((test_datum.shape[0],1))
-    #print(test_datum.shape)
     dist = l2(test_datum.T, x_train)
     nume = -dist.T/(2*tau**2)
-    #nume = nume-np.amax(nume)
     deno = logsumexp(nume)
     a = np.exp(nume-deno)
-    #print(nume.shape)
-    #print(np.repeat(a,N_train,axis=1).shape)
     A = np.identity(N_train)
     np.fill_diagonal(A,a)
-    #print("A is ", A[0,:])
-    #print("2A is ", A[1,:])
     I = np.identity(d_train)
-    #print(A.shape, " ", x_train.shape)
     M1 = np.matmul(np.matmul(x_train.T,A),x_train)+lam*I
     M2 = np.matmul(np.matmul(x_train.T,A),y_train)
     w = np.linalg.solve(M1,M2)
@@ -96,10 +89,6 @@ def run_validation(x,y,taus,val_frac):
             y_pred.append(LRLS(x_train[j,:].T,x_train,y_train,i))
         for j in range(x_val.shape[0]):
             y_val_pred.append(LRLS(x_val[j,:].T,x_train,y_train,i))
-        #print("loss_tr is ", 0.5*mean_squared_error(y_pred,y_train))
-        #print("loss_val is ", 0.5*mean_squared_error(y_val_pred,y_val))
-        #loss_tr.append(0.5*mean_squared_error(y_pred,y_train))
-        #loss_val.append(0.5*mean_squared_error(y_val_pred,y_val))
         print("loss_tr is ", 0.5*np.mean((np.asarray(y_pred)-y_train.reshape((y_train.shape[0],1)))**2))
         print("loss_val is ", 0.5*np.mean((np.asarray(y_val_pred)-y_val.reshape((y_val.shape[0],1)))**2))
         loss_tr.append( 0.5*np.mean((np.asarray(y_pred)-y_train.reshape((y_train.shape[0],1)))**2))
@@ -113,7 +102,6 @@ if __name__ == "__main__":
     train_losses, test_losses = run_validation(x,y,taus,val_frac=0.3)
     plt.semilogx(taus,train_losses,label="train loss")
     plt.semilogx(taus,test_losses,label="validation loss")
-    #plt.axis([10, 1000, 0, 100])
     plt.legend()
     plt.show()
 
