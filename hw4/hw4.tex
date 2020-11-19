@@ -145,9 +145,9 @@ In this problem, we know $p(z)=N(z|0,1)$ and $p(x|z) = N(x|zu,\sigma ^2I)$. Plug
 % \intertext{Then:}
 %     p(x) &= \frac{1}{\sqrt{((2\pi )^d(Cov) ^{2d})}}exp()\\
 % \end{align*}
-Find $logp(z,x)$ first:
+Assume the dimension of $x^{(i)}$ is dx1. Find $logp(z,x)$ first:
 \begin{align*}
-    logp(z,x) &= log(p(x|z))+log(p(z))\\
+    log(p(z,x)) &= log(p(x|z))+log(p(z))\\
     &= -\frac{\frac{1}{\sigma ^2}(x-zu)^T(x-zu)}{2}log(\frac{1}{\sqrt{((2\pi )^d\sigma ^{2d})}}) + const\\
     &= \frac{\frac{1}{\sigma ^2}(x-zu)^T(x-zu)}{2}log(\sqrt{((2\pi )^d\sigma ^{2d})}) + const\\
     &= \frac{\frac{1}{\sigma ^2}(x-zu)^T(x-zu)}{4}log((2\pi )^d\sigma ^{2d}) + const\\
@@ -156,13 +156,13 @@ Find $logp(z,x)$ first:
     &=D(x^Tx-x^Tzu-zu^Tx+zu^Tzu) + const\\
     &=D(-2zu^Tx+z^2u^Tu) + const^\prime\\
 \intertext{Then:}
-    E[logp(z,x)] &= -2DE[z]u^Tx + DE[z^2]u^Tu + const^\prime\\
+    E[log(p(z,x))] &= -2DE[z]u^Tx + DE[z^2]u^Tu + const^\prime\\
                  &= -2Dmu^Tx + Dsu^Tu + const^\prime\\
 \intertext{Drop $const^\prime$, then the constant-dropped expected log-likelihood $L$ is:}
     L &= \frac{1}{N}\sum_{i = 1}^{N}(-2Dm^{(i)}u^Tx^{(i)} + Ds^{(i)}u^Tu)\\
     \frac{\partial L}{\partial u} &= \frac{1}{N}\sum_{i = 1}^{N}(-2Dm^{(i)}x^{(i)} + 2Ds^{(i)}u)\\
 \intertext{Let $\frac{\partial L}{\partial u} = 0$, then:}
     \frac{1}{N}\sum_{i = 1}^{N}(-2Dm^{(i)}x^{(i)} + 2Ds^{(i)}u) &= 0\\
-    u_{new} &= \frac{1}{N}\sum_{i = 1}^{N}\frac{m^{(i)}x^{(i)}}{s^{(i)}}\\
+    u_{new} &= \frac{\sum_{i = 1}^{N}(m^{(i)}x^{(i)})}{\sum_{i = 1}^{N}s^{(i)}}\\
 \end{align*}
 \end{document}
