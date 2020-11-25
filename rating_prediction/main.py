@@ -111,7 +111,7 @@ def Convert(tup, di):
 numpy.random.seed(7)
 tf.random.set_seed(7)
 # load the dataset but only keep the top n words, zero the rest
-top_words = 5000
+top_words = 20000
 # (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
 # print(len(X_train[0]))
 # print(len(X_train[578]))
@@ -152,6 +152,7 @@ with open('data/train.json', 'r') as train_file:
                         wordcount[ss_rm] += 2
                     else:
                         wordcount[ss_rm] = 2
+skip_word = 22
 dic_list = sorted(wordcount.items(), key=lambda item: item[1], reverse=True)
 dic_list = dic_list[:top_words]
 for j in range (len(dic_list)):
@@ -163,7 +164,6 @@ i = 0
 with open('data/train.json', 'r') as train_file:
     for row in train_file:
         data = json.loads(row)
-        # print (data)
         r = float(data['overall'])
         post_list = []
         if "reviewText" in data:
@@ -235,8 +235,6 @@ with open('data/test.json', 'r') as train_file:
                 if s_rm in wordcount:
                     indices = wordcount[s_rm]
                     post_list.append(indices)
-        else:
-            print (data)
         if "summary" in data:
             a_string = data['summary']
             a_list = a_string.split()
@@ -245,8 +243,8 @@ with open('data/test.json', 'r') as train_file:
                 if s_rm in wordcount:
                     indices = wordcount[s_rm]
                     post_list.append(indices)
-        else:
-            print (data)
+        if not "reviewText" in data and not "summary" in data:
+            print ("CANNOT PREDICT THIS DATA: ",data)
         if post_list:
             X_pred.append(post_list)
         else:
@@ -264,9 +262,9 @@ for l in open('data/rating_pairs.csv'):
         predictions.write(l)
         continue
     u,p = l.strip().split('-')
-    print ("y_pred", y_pred[i], " and ", i)
+    # print ("y_pred", y_pred[i], " and ", i)
     predictions.write(u + '-' + p + ',' + str(numpy.argmax(y_pred[i])) + '.0\n')
     i += 1
 predictions = open('rating_predictions_bak.csv', 'w')
 for j in y_pred:
-    predictions.write(str(j) + '\n')
+    predictions.write(str(numpy.argmax(j)) + '\n')
