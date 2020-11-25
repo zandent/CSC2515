@@ -189,8 +189,8 @@ with open('data/train.json', 'r') as train_file:
 
 X_train = numpy.array(X_train)
 y_train = numpy.array(y_train)
-(X_train, X_test) = list_splitter(X_train, 0.8)
-(y_train, y_test) = list_splitter(y_train, 0.8)
+(_, X_test) = list_splitter(X_train, 0.8)
+(_, y_test) = list_splitter(y_train, 0.8)
 # truncate and pad input sequences
 max_review_length = 500
 X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
