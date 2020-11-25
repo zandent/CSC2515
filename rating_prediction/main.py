@@ -99,51 +99,94 @@ class myRNN(RNN):
 def list_splitter(list_to_split, ratio):
     first_half = int(len(list_to_split) * ratio)
     return list_to_split[:first_half], list_to_split[first_half:]
+def Convert(tup, di): 
+    for a, b in tup: 
+        di.setdefault(a, b)
+    return di
+
+# y_pred = numpy.array([4.8483334e-06, 1.4581978e-03, 2.2443533e-03, 1.3272554e-02, 1.3884255e-01,7.5374603e-01])
+# print (str(numpy.argmax(y_pred)))
 
 # fix random seed for reproducibility
 numpy.random.seed(7)
 tf.random.set_seed(7)
 # load the dataset but only keep the top n words, zero the rest
-top_words = 70000
-(X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
+top_words = 5000
+# (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
 # print(len(X_train[0]))
 # print(len(X_train[578]))
 # print(y_train.shape)
 max_review_length = 500
-X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
-X_test = sequence.pad_sequences(X_test, maxlen=max_review_length)
-print(X_train)
-print(y_train)
-print(X_train.shape)
-print(y_train.shape)
+# X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
+# X_test = sequence.pad_sequences(X_test, maxlen=max_review_length)
+# print(X_train)
+# print(y_train)
+# print(X_train.shape)
+# print(y_train.shape)
 
 X_train = []
 y_train = []
-userRatings = defaultdict(list)
+wordcount = defaultdict(list)
 i = 0
-
+with open('data/train.json', 'r') as train_file:
+    for row in train_file:
+        data = json.loads(row)
+        if "reviewText" in data:
+            i += 1
+            a_string = data['reviewText']
+            a_list = a_string.split()
+            for s in a_list:
+                s_rm = re.sub(r'[^A-Za-z]', '', s).lower()
+                if s_rm != '':
+                    if s_rm in wordcount:
+                        wordcount[s_rm] += 1
+                    else:
+                        wordcount[s_rm] = 1
+        if "summary" in data:
+            sa_string = data['summary']
+            sa_list = sa_string.split()
+            for s in sa_list:
+                ss_rm = re.sub(r'[^A-Za-z]', '', s).lower()
+                if ss_rm != '':
+                    if ss_rm in wordcount:
+                        wordcount[ss_rm] += 2
+                    else:
+                        wordcount[ss_rm] = 2
+dic_list = sorted(wordcount.items(), key=lambda item: item[1], reverse=True)
+dic_list = dic_list[:top_words]
+for j in range (len(dic_list)):
+    dic_list[j] = (dic_list[j][0],j)
+wordcount = defaultdict(list)
+Convert(dic_list, wordcount)
+# print (wordcount)
+i = 0
 with open('data/train.json', 'r') as train_file:
     for row in train_file:
         data = json.loads(row)
         # print (data)
         r = float(data['overall'])
+        post_list = []
         if "reviewText" in data:
             i += 1
             a_string = data['reviewText']
             a_list = a_string.split()
-            post_list = []
             for s in a_list:
                 s_rm = re.sub(r'[^A-Za-z]', '', s).lower()
-                if s_rm != '':
-                    hash_object = hashlib.sha256(s_rm.encode())
-                    hex_dig = int(hash_object.hexdigest()[:4], 16)
-                    post_list.append(hex_dig)
+                if s_rm in wordcount:
+                    indices = wordcount[s_rm]
+                    post_list.append(indices)
+        if "summary" in data:
+            a_string = data['summary']
+            a_list = a_string.split()
+            for s in a_list:
+                s_rm = re.sub(r'[^A-Za-z]', '', s).lower()
+                if s_rm in wordcount:
+                    indices = wordcount[s_rm]
+                    post_list.append(indices)
+        if post_list:    
             X_train.append(post_list)
             y_train.append(r)
-            # if i <= 2:
-            #     print (post_list)
-            #     print ("X_train is ", X_train)
-            # +data['summary'])
+
 X_train = numpy.array(X_train)
 y_train = numpy.array(y_train)
 (X_train, X_test) = list_splitter(X_train, 0.8)
@@ -152,21 +195,22 @@ y_train = numpy.array(y_train)
 max_review_length = 500
 X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
 X_test = sequence.pad_sequences(X_test, maxlen=max_review_length)
-print(X_train)
-print(y_train)
-print(X_train.shape)
-print(y_train.shape)
+# print(X_train)
+# print(y_train)
+# print(X_train.shape)
+# print(y_train.shape)
 
 # create the model
 model = Sequential()
 model.add(Embedding(top_words, 32, embeddings_initializer = 'zeros',input_length=max_review_length))
 # 4 different cells: default rnncell/GRU/LSTM/self-defined rnncell
 # model.add(RNN(SimpleRNNCell(32)))
-# model.add(RNN(MinimalRNNCell(32)))
+#model.add(RNN(MinimalRNNCell(32)))
 model.add(GRU(32))
-# model.add(LSTM(32))
-model.add(Dense(1, activation='sigmoid'))
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+#model.add(LSTM(32))
+#model.add(Dense(250, activation='relu'))
+model.add(Dense(6, activation='sigmoid'))
+model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 print(model.summary())
 # simple early stopping, optional
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1)
@@ -174,3 +218,55 @@ model.fit(X_train, y_train, epochs=10, batch_size=64,validation_data = [X_test,y
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
+
+X_pred = []
+i = 0
+with open('data/test.json', 'r') as train_file:
+    for row in train_file:
+        data = json.loads(row)
+        # if "reviewText" in data:
+        i += 1
+        post_list = []
+        if "reviewText" in data:
+            a_string = data['reviewText']
+            a_list = a_string.split()
+            for s in a_list:
+                s_rm = re.sub(r'[^A-Za-z]', '', s).lower()
+                if s_rm in wordcount:
+                    indices = wordcount[s_rm]
+                    post_list.append(indices)
+        else:
+            print (data)
+        if "summary" in data:
+            a_string = data['summary']
+            a_list = a_string.split()
+            for s in a_list:
+                s_rm = re.sub(r'[^A-Za-z]', '', s).lower()
+                if s_rm in wordcount:
+                    indices = wordcount[s_rm]
+                    post_list.append(indices)
+        else:
+            print (data)
+        if post_list:
+            X_pred.append(post_list)
+        else:
+            X_pred.append([0])
+X_pred = numpy.array(X_pred)
+print ("x_pred_prev shape", X_pred.shape)
+X_pred = sequence.pad_sequences(X_pred, maxlen=max_review_length)
+y_pred = model.predict(X_pred)
+print ("X_pred_late shape", X_pred.shape)
+print ("y_pred_late shape", y_pred.shape)
+i = 0
+predictions = open('rating_predictions.csv', 'w')
+for l in open('data/rating_pairs.csv'):
+    if l.startswith('userID'):
+        predictions.write(l)
+        continue
+    u,p = l.strip().split('-')
+    print ("y_pred", y_pred[i], " and ", i)
+    predictions.write(u + '-' + p + ',' + str(numpy.argmax(y_pred[i])) + '.0\n')
+    i += 1
+predictions = open('rating_predictions_bak.csv', 'w')
+for j in y_pred:
+    predictions.write(str(j) + '\n')
