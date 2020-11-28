@@ -116,7 +116,6 @@ top_words = 20000
 # print(len(X_train[0]))
 # print(len(X_train[578]))
 # print(y_train.shape)
-max_review_length = 500
 # X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
 # X_test = sequence.pad_sequences(X_test, maxlen=max_review_length)
 # print(X_train)
@@ -191,6 +190,8 @@ X_train = numpy.array(X_train)
 y_train = numpy.array(y_train)
 (_, X_test) = list_splitter(X_train, 0.8)
 (_, y_test) = list_splitter(y_train, 0.8)
+# (X_train, X_test) = list_splitter(X_train, 0.8)
+# (y_train, y_test) = list_splitter(y_train, 0.8)
 # truncate and pad input sequences
 max_review_length = 500
 X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
@@ -214,7 +215,7 @@ model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=
 print(model.summary())
 # simple early stopping, optional
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1)
-model.fit(X_train, y_train, epochs=10, batch_size=64,validation_data = [X_test,y_test],callbacks=[es])
+model.fit(X_train, y_train, epochs=3, batch_size=64,validation_data = (X_test,y_test),callbacks=[es])
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
