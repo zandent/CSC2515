@@ -218,7 +218,7 @@ model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=
 print(model.summary())
 # simple early stopping, optional
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1)
-model.fit(X_train, y_train, epochs=2, batch_size=64,validation_data = (X_test,y_test),callbacks=[es])
+model.fit(X_train, y_train, epochs=3, batch_size=64,validation_data = (X_test,y_test))
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
