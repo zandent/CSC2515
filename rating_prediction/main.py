@@ -39,6 +39,8 @@ import numpy
 from keras.datasets import imdb
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.layers import Dropout
+from keras.layers import Bidirectional
 from keras.layers import LSTM,RNN,LSTMCell,SimpleRNNCell,GRU
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
@@ -207,15 +209,16 @@ model.add(Embedding(top_words, 32, embeddings_initializer = 'zeros',input_length
 # 4 different cells: default rnncell/GRU/LSTM/self-defined rnncell
 # model.add(RNN(SimpleRNNCell(32)))
 #model.add(RNN(MinimalRNNCell(32)))
-model.add(GRU(32))
-#model.add(LSTM(32))
-#model.add(Dense(250, activation='relu'))
+model.add(Bidirectional(GRU(32)))
+# model.add(LSTM(32))
+# model.add(Dropout(0.1))
+# model.add(Dense(250, activation='relu'))
 model.add(Dense(6, activation='sigmoid'))
 model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 print(model.summary())
 # simple early stopping, optional
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1)
-model.fit(X_train, y_train, epochs=3, batch_size=64,validation_data = (X_test,y_test),callbacks=[es])
+model.fit(X_train, y_train, epochs=2, batch_size=64,validation_data = (X_test,y_test),callbacks=[es])
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
