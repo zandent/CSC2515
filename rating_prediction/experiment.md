@@ -81,6 +81,5 @@ Epoch 1/3
 Epoch 2/3
 3125/3125 [==============================] - 666s 213ms/step - loss: 0.5762 - accuracy: 0.7667 - val_loss: 0.5127 - val_accuracy: 0.7979
 Epoch 3/3
-2443/3125 [======================>.......] - ETA: 2:20 - loss: 0.5232 - accuracy: 0.7896 
 3125/3125 [==============================] - 668s 214ms/step - loss: 0.5243 - accuracy: 0.7885 - val_loss: 0.4875 - val_accuracy: 0.8127
 Accuracy: 81.27%

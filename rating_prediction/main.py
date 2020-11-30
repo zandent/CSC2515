@@ -190,6 +190,15 @@ with open('data/train.json', 'r') as train_file:
 
 X_train = numpy.array(X_train)
 y_train = numpy.array(y_train)
+# X_cmp = X_train
+# y_cmp = y_train
+# idx = numpy.random.permutation(len(X_train))
+# X_train,y_train = X_train[idx], y_train[idx]
+# print ("Xtrain is", X_train[100])
+# print ("ytrain is", y_train[100])
+# print ("idx is", idx[100])
+# print ("Xcmp is", X_cmp[idx[100]])
+# print ("ycmp is", y_cmp[idx[100]])
 (_, X_test) = list_splitter(X_train, 0.8)
 (_, y_test) = list_splitter(y_train, 0.8)
 # (X_train, X_test) = list_splitter(X_train, 0.8)
@@ -209,7 +218,8 @@ model.add(Embedding(top_words, 32, embeddings_initializer = 'zeros',input_length
 # 4 different cells: default rnncell/GRU/LSTM/self-defined rnncell
 # model.add(RNN(SimpleRNNCell(32)))
 #model.add(RNN(MinimalRNNCell(32)))
-model.add(Bidirectional(GRU(32)))
+model.add(GRU(32))
+# model.add(Bidirectional(GRU(32)))
 # model.add(LSTM(32))
 # model.add(Dropout(0.1))
 # model.add(Dense(250, activation='relu'))
@@ -218,7 +228,7 @@ model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=
 print(model.summary())
 # simple early stopping, optional
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1)
-model.fit(X_train, y_train, epochs=3, batch_size=64,validation_data = (X_test,y_test))
+model.fit(X_train, y_train, epochs=3, batch_size=64,validation_data = (X_test,y_test),callbacks=[es])
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
@@ -260,7 +270,7 @@ y_pred = model.predict(X_pred)
 print ("X_pred_late shape", X_pred.shape)
 print ("y_pred_late shape", y_pred.shape)
 i = 0
-predictions = open('rating_predictions.csv', 'w')
+predictions = open('submission.csv', 'w')
 for l in open('data/rating_pairs.csv'):
     if l.startswith('userID'):
         predictions.write(l)
