@@ -3,6 +3,7 @@
 *.fls
 *.log
 *.synctex.gz
+*.out
 rating_prediction/data/
 rating_prediction/rating_predictions.csv
 rating_prediction/rating_predictions_bak.csv

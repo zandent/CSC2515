@@ -5,8 +5,11 @@
 \usepackage{cancel}
 \usepackage{makecell}
 \usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{sectsty}
+\sectionfont{\fontsize{12}{15}\selectfont}
 \usepackage{authblk}
 \usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
 \singlespacing
 \graphicspath{{.}}
 \author{Kaggle team ID: Zi Han Zhao}
@@ -21,8 +24,47 @@ here should motivate the model you use in the next section.}
 will you optimize it? Did you run into any issues due to scalability, overfitting, etc.? What
 other models did you consider for comparison? What were your unsuccessful attempts along
 the way? What are the strengths and weaknesses of the different models being compared?}
+Two other alternative models are Gated Recurrent Unit (GRU) model and Transformer TFBertModel.\\
+GRU is a improved version of recurrent neural network \cite{gru}. The reference of my GRU design is
+TensorFlow RNN Text binary classification for IMDB review \cite{Textclassification}. The training/test dataset formatting of GRU is as following: first the number of each word is counted and sorted through $"reviewText"$ and $"summary"$ entries in $train.json$. The label is $"overall"$. Top 20000 most-frequent used word list are stored.
+Second, looking into each single data in $train.json$, if a word in the data is found in word list, I
+encode the word to a number representing the index of word list. E.g, if $"the"$ is found in word list
+and it is in index 0 of word list, it means the word is 1st most frequent in training data and index 0
+is the encoding output of $"the"$. The words not in the word list are abandoned. The layers are embedding
+layer, GRU layer and Dense layer. The output is multi-class corresponding to $"overall"$ five floating
+numbers.\\
+Similar with LSTM model, GRU model is capable of long-term next-sequence prediction. Compared with LSTM, the number of parameters is reduced so that the occurrence of overfit reduces and the speed of training increases. \textbf{TODO: cons by comparing with current model.}\\
+TFBertModel is also a popular model for next-line prediction \cite{BERT}. The input dataset is the string
+sequence of combining $"reviewText"$ and $"summary"$ entries. The label is $"overall"$. The sequences are
+encoded into $"input\_ids"$ list. The layers are Input Layer, TFBertMainLayer, Dropout layer, Dense output
+layer. The output is also multi-class.\\
+TFBertModel makes use of Transformer model structure to learn the relations among words or sub-words.
+The accuracy of prediction is higher under large enough dataset and iterations \cite{BERTpros}. However, \textbf{TODO: cons by comparing with current model.}. Besides, the computation resources are heavy and it is
+time-consuming.\\
 \section{Describe your results and conclusions. How well does your model perform compared to
 alternatives, and what is the significance of the results? Which feature representations worked
 well and which do not? What is the interpretation of your model’s parameters? Why did the
 proposed model succeed why others failed (or if it failed, why did it fail)?}
+
+\medskip
+\begin{thebibliography}{12}
+    
+    \bibitem{gru} 
+    Understanding GRU Networks
+    \\\texttt{https://towardsdatascience.com/understanding-gru-networks-2ef37df6c9be}
+    
+    \bibitem{Textclassification}
+    Text classification with an RNN
+    \\\texttt{https://www.tensorflow.org/tutorials/text/text\_classification\_rnn}
+
+    \bibitem{BERT}
+    Multi-Label, Multi-Class Text Classification with BERT, Transformers and Keras
+    \\\texttt{https://towardsdatascience.com/multi-label-multi-class-text-classification-with-bert-transformer-and-keras-c6355eccb63a}
+
+    \bibitem{BERTpros}
+    BERT Explained: State of the art language model for NLP
+    \\\texttt{https://towardsdatascience.com/bert-explained-state-of-the-art-language-model-for-nlp-f8b21a9b6270}
+
+    \end{thebibliography}
+
 \end{document}
