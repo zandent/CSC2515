@@ -79,14 +79,14 @@ well and which do not? What is the interpretation of your model’s parameters? 
 proposed model succeed why others failed (or if it failed, why did it fail)?}
 I set a callback function which will be triggered when validation loss raises up after current epoch training.
 The training steps stops at epoch 4.\\
-As shown in Figure \ref{fig:gru}, the training loss and accuracy increases and validation loss reaches to minimum point at epoch 3. The minimum validation loss is 0.6038 and the corresponding validation accuracy is \textbf{TODO}.
+As shown in Figure \ref{fig:gru}, the training loss and accuracy increases and validation loss reaches to minimum point at epoch 3. The minimum validation loss is 0.6038 and the corresponding validation accuracy is 0.7595.
 As shown in Figure 0.7595, under epoch 2, TFBertModel minimum validation loss is \textbf{TODO} and the corresponding validation accuracy is \textbf{TODO}.\\
 GraphLab recommender system performs worse. Its minimum validation loss is \textbf{TODO} and the corresponding validation accuracy is \textbf{TODO}. The reason of high loss results is no enough data for individual person
 and items to train. It is underfitting.\\
 \begin{figure}[h!]
     \centering
-    \includegraphics{../gru_loss.pdf}
-    \includegraphics{../gru_accuracy.pdf}
+    \includegraphics{gru_loss.pdf}
+    \includegraphics{gru_accuracy.pdf}
     \caption{GRU model loss and accuracy}
     \label{fig:gru}
 \end{figure}

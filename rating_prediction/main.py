@@ -53,50 +53,7 @@ import json
 import re
 import hashlib
 from collections import defaultdict
-class MinimalRNNCell(keras.layers.Layer):
-    """
-    self defined RNNCELL, mindstorm
-    """
-
-    def __init__(self, units, **kwargs):
-        self.units = units
-        self.state_size = units
-        super(MinimalRNNCell, self).__init__(**kwargs)
-
-    def build(self, input_shape):
-        # self.kernel = self.add_weight(shape=(input_shape[-1], self.units),
-        #                               initializer='uniform',
-        #                               name='kernel')
-        # self.recurrent_kernel = self.add_weight(
-        #     shape=(self.units, self.units),
-        #     initializer='uniform',
-        #     name='recurrent_kernel')
-        self.b = self.add_weight(shape = (self.units,),initializer='uniform')
-        self.b2 = self.add_weight(shape = (self.units,),initializer='uniform')
-        # self.b3 = self.add_weight(shape = (self.units,),initializer='uniform')
-        self.built = True
-
-    def call(self, inputs, states):
-        prev_output = states[0]
-
-        # h = K.dot(inputs, self.kernel)
-        # output = h + K.dot(prev_output, self.recurrent_kernel)+self.b
-        # if K.l2_normalize(prev_output)<0.000001:
-        # 	return inputs,[inputs]
-        # if K.l2_normalize(inputs)<0.000001:
-        # 	return prev_output,[prev_output]
-        output = K.reshape(K.batch_dot(K.reshape(self.b2+prev_output,shape=(-1,side,side)),K.reshape(self.b+inputs,shape=(-1,side,side))),shape=(-1,side**2))
-        print("here: ", prev_output,inputs,output)
-
-        return output, [output]
-
-class myRNN(RNN):
-    def get_initial_state(self,inputs):
-    	i = tf.broadcast_to(K.reshape(K.eye(side),shape=(1,side*side)),[K.shape(inputs)[0],side*side])
-    	print("here\n\n\n",i)
-    	print("")
-    	return [i]
-		# return tf.ones((batch_size, self.state_size))
+import matplotlib.pyplot as plt
 
 def list_splitter(list_to_split, ratio):
     first_half = int(len(list_to_split) * ratio)
@@ -136,6 +93,7 @@ with open('data/train.json', 'r') as train_file:
             i += 1
             a_string = data['reviewText']
             a_list = a_string.split()
+            # print (len(a_list))
             for s in a_list:
                 s_rm = re.sub(r'[^A-Za-z]', '', s).lower()
                 if s_rm != '':
@@ -199,10 +157,10 @@ y_train = numpy.array(y_train)
 # print ("idx is", idx[100])
 # print ("Xcmp is", X_cmp[idx[100]])
 # print ("ycmp is", y_cmp[idx[100]])
-(_, X_test) = list_splitter(X_train, 0.8)
-(_, y_test) = list_splitter(y_train, 0.8)
-# (X_train, X_test) = list_splitter(X_train, 0.8)
-# (y_train, y_test) = list_splitter(y_train, 0.8)
+# (_, X_test) = list_splitter(X_train, 0.8)
+# (_, y_test) = list_splitter(y_train, 0.8)
+(X_train, X_test) = list_splitter(X_train, 0.8)
+(y_train, y_test) = list_splitter(y_train, 0.8)
 # truncate and pad input sequences
 max_review_length = 500
 X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
@@ -228,11 +186,32 @@ model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=
 print(model.summary())
 # simple early stopping, optional
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1)
-model.fit(X_train, y_train, epochs=3, batch_size=64,validation_data = (X_test,y_test),callbacks=[es])
+history = model.fit(X_train, y_train, epochs=5, batch_size=64,validation_data = (X_test,y_test),callbacks=[es])
 # Final evaluation of the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: %.2f%%" % (scores[1]*100))
-
+# list all data in history
+print(history.history.keys())
+# summarize history for accuracy
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+# plt.show()
+plt.savefig('gru_accuracy.pdf')
+plt.close()
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+# plt.show()
+plt.savefig('gru_loss.pdf')
+plt.close()
 X_pred = []
 i = 0
 with open('data/test.json', 'r') as train_file:
