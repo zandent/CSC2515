@@ -179,7 +179,7 @@ model.add(Embedding(top_words, 32, embeddings_initializer = 'zeros',input_length
 model.add(GRU(32))
 # model.add(Bidirectional(GRU(32)))
 # model.add(LSTM(32))
-# model.add(Dropout(0.1))
+model.add(Dropout(0.1))
 # model.add(Dense(250, activation='relu'))
 model.add(Dense(6, activation='sigmoid'))
 model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
