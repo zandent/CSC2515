@@ -1,0 +1,10 @@
+import turicreate as tc
+actions = tc.SFrame.read_json('data/train.json', orient='lines')
+actions = actions.dropna()
+print (actions.head())
+training_data, validation_data = tc.recommender.util.random_split_by_user(actions, user_id='reviewerID', item_id='itemID')
+print (training_data.head())
+model = tc.recommender.create(training_data, user_id='reviewerID', item_id='itemID', target='overall')
+# results = model.recommend()
+results = model.evaluate(validation_data, metric="rmse", target='overall')
+print (results)

@@ -7,3 +7,5 @@
 rating_prediction/data/
 rating_prediction/rating_predictions.csv
 rating_prediction/rating_predictions_bak.csv
+rating_prediction/gru_accuracy.pdf
+rating_prediction/gru_loss.pdf

@@ -85,8 +85,11 @@ layer. The output is also multi-class.\\
 TFBertModel makes use of Transformer model structure to learn the relations among words or sub-words.
 The accuracy of prediction is higher under large enough dataset and iterations \cite{BERTpros}. 
 However, the computation resources are heavy and it is time-consuming.\\
-The other alternative model as my design baseline is GraphLab recommender system from Apple Inc. \cite{graph}. 
-The input data is \texttt{reviewerID}, \texttt{itemID} with label \texttt{overall}. The recommender model is not
+The other alternative model as my design baseline is Turi Create official recommender system from Apple Inc. \cite{graph}.
+It is fast and flexible aiming at IOS, macOS, etc. Turi Create recommender system is a item-item similarity model.
+Its goal of the model is recommend item IDs to the given user IDs. It also predict the rating given item ID and user ID.
+Different from the models above, 
+the input data is \texttt{reviewerID}, \texttt{itemID} with label \texttt{overall}. The recommender model is not
 released but according to its input data type, it indicates
 that the model focuses on user-item similarity rather than the review strings. 
 With enough individual reviewer information and item information, It is capable to predict more accurate rating
@@ -124,10 +127,12 @@ The total training and validating time is around 1200 secs.
 As shown in Figure \ref{fig:tr}, under 2nd epoch, TFBertModel minimum validation loss is 0.5996 and the
 corresponding validation accuracy is 0.7579. The total training and validating time is around 10800 secs (3 hrs)
 since the number of parameters are over 1 million.\\
-GraphLab recommender system performs worse. Its minimum validation loss is \textbf{TODO} and the corresponding
-validation accuracy is \textbf{TODO}. The reason of high loss results is no enough data for individual person
+Turi Create recommender system performs worse. Its minimum validation loss is 0.8964. The training time is within 5 secs.
+The training process is unpublished so no medium loss can be found.
+Since it is regression model rather than class classification, we cannot tell the accuracy.
+The reason of high loss results is no enough data for individual person
 and items to train. It is underfitting.\\
-In terms of validation loss and accuracy comparison, GRU performs much better than baseline GraphLab recommender
+In terms of validation loss and accuracy comparison, GRU performs much better than baseline Turi Create recommender
 system
 and takes a slight lead to TFBertModel.
 Compared with TFBertModel, the time of training is less than half hour. It is efficient to apply GRU model in
@@ -182,7 +187,8 @@ other practical recommender system to save training time.
     \\\url{https://towardsdatascience.com/deep-learning-4-embedding-layers-f9a02d55ac12}
 
     \bibitem{graph}
-    turicreate.recommender.create
+    Apple release 'Turi Create' Machine Learning Framework on Github
+    \\\url{https://todobi.com/apple-release-turi-create-machine/}
     \\\url{https://towardsdatascience.com/deep-learning-4-embedding-layers-f9a02d55ac12}
     \\\url{https://apple.github.io/turicreate/docs/api/generated/turicreate.recommender.create.html#turicreate.recommender.create}
 
