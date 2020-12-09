@@ -71,7 +71,12 @@ is usually over 200. RNN cannot handle and remember long sequence data. GRU and 
 higher accuracy.
 Compared with LSTM, the number of parameters of GRU is reduced so
 that the occurrence of overfit reduces and the speed of training increases.\\
-The layers of my base model are input layer, GRU layer and Dense layer. The output is multi-class corresponding to \texttt{overall} five rating stars. In order to avoid overfitting situation, I add Dropout layer ahead of Dense output layer. In order to shorten input data size, embedding layer replaces with simple input layer to encode data into
+The layers of my base model are input layer, GRU layer and Dense layer. 
+GRU has two types of gate structures, update gate and reset gate.
+Update gate is a sigmoid activation function which is capable of passing past sequences along to the future.
+Reset gate is also a sigmoid activation function which determines how much past information to forget.
+The output is multi-class corresponding to \texttt{overall} five rating stars. In order to avoid overfitting situation, 
+I add Dropout layer ahead of Dense output layer. In order to shorten input data size, embedding layer replaces with simple input layer to encode data into
 multi dimension \cite{emd}. The similarity among sentences or words stands out. Through experiments,
 it is found that 32 encoded dimensions acquires the lowest validation loss. Therefore, I choose the output
 dimension of embedding layer is 32. The table \ref{table:ms} is the overview of the model.\\
