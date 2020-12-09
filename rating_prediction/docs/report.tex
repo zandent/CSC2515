@@ -13,95 +13,26 @@
 \usepackage{xurl}
 \singlespacing
 \graphicspath{{.}}
-\author{Kaggle team ID: Zi Han Zhao}
-\affil{Student ID: zhaozih3}
-\title{Recommender System Report}
+\author{\vspace{-0.5cm}Kaggle team ID: Zi Han Zhao}
+% \affil{Student ID: zhaozih3}
+\title{\vspace{-2cm}Recommender System Report}
 \date{}
 \begin{document}
 \maketitle
-\section{Describe how you processed your data and what features you used. Your exploratory analysis
-here should motivate the model you use in the next section.}
-The data processing method is based on IMDB dataset loading from TensorFlow package \cite{imdb}.
-The project is a text classification program. Various review strings are related to the rating stars. 
-I pick the most used words for each review sentence
-and encode them as the input dataset of my model.
-The training/validation dataset processing is as following: 
-After setting random seed, the raw dataset from \texttt{train.json} is shuffled to 
-avoid the correlation between neighbor data when collecting from Amazon.
-After shuffled, the raw dataset is split into training data and validation data.
-The ratio between training data and validation data is $8:2$.
-The reason of choose the ratio is that let model be trained by enough training data
-to check the model performance. All of dataset will be regraded as training data
-after finding the best performance under some epoch. In this way, not only the model is well-trained
-based on such all of dataset but also overfitting is prevented.
-I focus on only \texttt{reviewText},
-\texttt{summary} and \texttt{overall} entries from the dataset because \texttt{reviewText} and 
-\texttt{summary} features are the sentences
-and words to describe the items, which are the closest to the label \texttt{overall}. Other entries
-about reviewerID, itemID, etc are not directly related to the label and my choosing of model is based
-on text classification models.
-first the number of each word is counted and sorted 
-through \texttt{reviewText} and
-\texttt{summary} entries in \texttt{train.json}. The label is \texttt{overall}. 
-Through testing, top 20000 most-frequent words in dataset are stored in a word list.
-The words after 20000 ranking are ignored since their frequency helps nothing when building
-good model.
-The index of each word in word list is its rank position.
-Second, looking into each single data, if a word in the data is found in word list, I
-encode the word to a number representing the index of it in word list. E.g, if \texttt{"the"} is found in word list
-and it is in index 0 of word list, it means the word is the 1st most frequent in training data and index 0
-is the encoding output of \texttt{"the"}. The words not in the word list are abandoned. Finally,
-in order to make each data width the same, zeros are padded at the end of the index sequence. The data sequence
-length is set as 500. Any sequence over 500 is forced to cut aligned.
-Through testing, 90\% of data sequence length is within 500 and 400 in average.
-500 efficiently contains top used words and avoid the negative impact of too many padded zeros as well.
-Therefore, the input training and validation dataset is the sequences of indexes with labels.
-Next, a text classification model should be selected by experiments.
-\section{Describe your model. Explain and justify your decision to use the model you proposed. How
-will you optimize it? Did you run into any issues due to scalability, overfitting, etc.? What
-other models did you consider for comparison? What were your unsuccessful attempts along
-the way? What are the strengths and weaknesses of the different models being compared?} 
-My main layer is Gated Recurrent Unit (GRU) neural network model.
-GRU is a improved version of Long Short-Term Memory (LSTM) \cite{gru}. GRU and LSTM are both insensitive 
-to gap length. Compared with naive RNN, GRU has cell gate structure to remember the further past information \cite{lstm}.\\
-The reference of my GRU design is
-TensorFlow RNN Text binary classification for IMDB review \cite{Textclassification}. Similar with LSTM model, GRU
-model is capable of long-sequence prediction. Looking into raw dataset, the length of the review strings
-is usually over 200. RNN cannot handle and remember long sequence data. GRU and LSTM will result in lower loss and 
-higher accuracy.
-Compared with LSTM, the number of parameters of GRU is reduced so
-that the occurrence of overfit reduces and the speed of training increases.\\
-The layers of my base model are input layer, GRU layer and Dense layer. 
-GRU has two types of gate structures, update gate and reset gate.
-Update gate is a sigmoid activation function which is capable of passing past sequences along to the future.
-Reset gate is also a sigmoid activation function which determines how much past information to forget.
-The output is multi-class corresponding to \texttt{overall} five rating stars. In order to avoid overfitting situation, 
-I add Dropout layer ahead of Dense output layer. In order to shorten input data size, embedding layer replaces with simple input layer to encode data into
-multi dimension \cite{emd}. The similarity among sentences or words stands out. Through experiments,
-it is found that 32 encoded dimensions acquires the lowest validation loss. Therefore, I choose the output
-dimension of embedding layer is 32. The table \ref{table:ms} is the overview of the model.\\
-One alternative model is Transformer TFBertModel.
-TFBertModel is also a popular Transformer model for next-line prediction \cite{BERT, trans}. 
-The model provides a effective attention-based neural language translation.
-The input dataset is the string
-sequence of combining \texttt{reviewText} and \texttt{summary} entries. The label is \texttt{overall}. The sequences are
-encoded into \texttt{input\_ids} list. The layers are Input Layer, TFBertMainLayer, Dropout layer, Dense output
-layer. The output is also multi-class.\\
-TFBertModel makes use of Transformer model structure to learn the relations among words or sub-words.
-The accuracy of prediction is higher under large enough dataset and iterations \cite{BERTpros}. 
-However, the computation resources are heavy and it is time-consuming.\\
-The other alternative model as my design baseline is Turi Create official recommender system from Apple Inc. \cite{graph}.
-It is fast and flexible aiming at IOS, macOS, etc. Turi Create recommender system is a item-item similarity model.
-Its goal of the model is recommend item IDs to the given user IDs. It also predict the rating given item ID and user ID.
-Different from the models above, 
-the input data is \texttt{reviewerID}, \texttt{itemID} with label \texttt{overall}. The recommender model is not
-released but according to its input data type, it indicates
-that the model focuses on user-item similarity rather than the review strings. 
-With enough individual reviewer information and item information, It is capable to predict more accurate rating
-stars. But the number of the dataset from $train.json$ for particular persons and items is limited. The number of
-data for 
-the same reviewer is less than 100. Underfitting might occur
-without training review strings.
+\vspace{-1.5cm}
+\section{Project Introduction \& Data Formats}
+This project is a model of a recommender system to predict user ratings given the user, the item and its associated reviews. 200,000 pieces of raw data consisting of information on the reviewer, the item, the given review and overall rating are provided initially. As a preprocessing step, these raw data is shuffled using a random seed to prevent any correlation between neighbouring data when they were collected. Next they are splitted into training and validation data. For the preliminary training, I used 80\% of the data to ensure training performance, and the 20\% left is used for validation. Then after determining how many epochs can lead to the best result, all data is used as training data and the program will only run up to the number of epochs found previously. This ensures the model will not only be well-trained based on the dataset available, but will also be insusceptible to overfitting.
+
+Features I chose from the dataset are \texttt{reviewText}, \texttt{summary} and \texttt{overall} (rating from 1 to 5). Since predicted user rating is the expected output of the model, the \texttt{overall} entry is used as the label. In real life, reviewers and particular items can have a correlation with the \texttt{overall} rating; however such information is very limited in the dataset provided. For instance, the number of entries for the same reviewer is less than 100. This shortage on available data can greatly impact model performance, hence only the sentences or phrases describing the items, \texttt{reviewText} and \texttt{summary}, which are closely related to the \texttt{overall} rating, are under consideration for my model. Further, since reviews given to an item are usually stronger indicators of the resulting rating than the reviewer himself , I chose to base my model on text classification programs, and the data processing method is inspired by the IMDB dataset from the TensorFlow package \cite{imdb}.
+
+The preparation of data is done in 3 steps. First, I go through all words in \texttt{reviewText} and \texttt{summary} to find the 20,000 words that occur most frequently. They will be stored in a word list in descending order with their index indicating their rank (e.g. the first word is the most frequent). Here, 20,000 is chosen based on performance, and any word after are ignored because they don’t contribute much when building a good model. Then I concatenate the \texttt{reviewText} and \texttt{summary} of each piece of data, and encode each word in the resultant string that occurs in the top 20,000 word list with their corresponding indices. As an example, if the resultant string is “This is a good purchase” and the words occur in the word list with the following indices,
+“this” - 1,  “is” - 2,  “a” - 3,  “good” - 4,
+then the encoded data will become “1234”. Any word not in the word list is discarded, as for “purchase” in this example. Finally to keep data width consistent, zeroes are padded at the end of the encoded data to make it to a length of 500. Anything longer than 500 will be cut to keep it aligned. The length 500 is chosen because through testing,  90\% of the encoded data has length smaller than 500, with 400 as the average. Thus, a length of 500 can efficiently represent the top used words while avoiding the overhead of padding too many zeroes. After this, each piece of data will become a sequence of indices paired with its \texttt{overall} rating as the label. These will act as the training and validating data to my text classification model.
+
+\section{Proposed Model}
+My base model consists of an input layer, a classification layer and a dense layer, with the Gated Recurrent Unit (GRU) neural network ultimately chosen as the classification layer, and the output being a multi-class prediction between 1~5 corresponding to the \texttt{overall} rating of an item. The design is motivated by the RNN text binary classification program for IMDB reviews from TensorFlow \cite{Textclassification}. However, since lengths of the review strings are usually over 200 in this application, RNN’s short-term memory can pose problems as they may leave out important information from the beginning when processing such long sequences for predictions. To counter this problem, models with cell gate structures that are able to remember more information from the past are considered, and that leads to GRU and LSTM (Long Short-Term Memory) \cite{gru}. Both of these models are insensitive to gap length and good at long-sequence prediction; compared to naive RNN, both can result in lower loss and higher accuracy. The difference between the two is the number of gates. Whereas LSTM has three gates, GRU has only two types of gate structures: an update gate, which is a sigmoid activation function, capable of passing past information to future steps; and a reset gate, which is also a sigmoid activation function, capable of determining how much information to forget. In short, GRU is a computation-wise improved version of LSTM: it has fewer parameters, which in turn can reduce occurrence of overfit and increase speed of training. Hence GRU is chosen between the two in my model.
+
+In terms of optimization to the model, I added Dropout layer before the Dense output layer to avoid overfitting. I also replaced the simple input layer with an embedding layer that converts data into multidimensional to shorten input data size \cite{emd}. This helps the similarity among sentences and words to stand out. Through experiment, it is found that encoding to 32-D results in the lowest validation loss, so the output dimension of the embedding layer is set to 32. The final specifications of the model can be seen in \ref{table:ms}.
 \begin{table}[h!]
     \centering
         \begin{tabular}{|c|c|c|}
@@ -120,88 +51,72 @@ without training review strings.
     \caption{Model structure}
     \label{table:ms}
 \end{table}
-\section{Describe your results and conclusions. How well does your model perform compared to
-alternatives, and what is the significance of the results? Which feature representations worked
-well and which do not? What is the interpretation of your model’s parameters? Why did the
-proposed model succeed why others failed (or if it failed, why did it fail)?}
-I set a callback function which will be triggered when validation loss raises up after current epoch training.
-The training steps stops at epoch 4.\\
-As shown in Figure \ref{fig:gru}, the training loss and accuracy increases and validation loss reaches to minimum
-point at 3rd epoch. The minimum validation loss is 0.6038 and the corresponding validation accuracy is 0.7595.
-The total training and validating time is around 1200 secs.
-As shown in Figure \ref{fig:tr}, under 2nd epoch, TFBertModel minimum validation loss is 0.5996 and the
-corresponding validation accuracy is 0.7579. The total training and validating time is around 10800 secs (3 hrs)
-since the number of parameters are over 1 million.\\
-Turi Create recommender system performs worse. Its minimum validation loss is 0.8964. The training time is within 5 secs.
-The training process is unpublished so no medium loss can be found.
-Since it is regression model rather than class classification, we cannot tell the accuracy.
-The reason of high loss results is no enough data for individual person
-and items to train. It is underfitting.\\
-In terms of validation loss and accuracy comparison, GRU performs much better than baseline Turi Create recommender
-system
-and takes a slight lead to TFBertModel.
-Compared with TFBertModel, the time of training is less than half hour. It is efficient to apply GRU model in
-other practical recommender system to save training time.
+\section{Alternative Models}
+One alternative I considered was the Transformer Bert Model (TFBert), a transformer model popular for next-line predictions \cite{BERT, trans}. This architecture provides an effective attention-based mechanism for neural language translation. Similar to my proposed model, the input dataset for this model is the concatenated string of \texttt{reviewText} and \texttt{summary}, with the string sequences encoded into \texttt{input\_ids} list; the label is \texttt{overall}; and the output is a multiclass classification result corresponding to the rating. Layers involved in this model are the Input Layer, the TFBertMainLayer, the Dropout Layer and the Dense Output Layer. TFBert makes use of the transformer structure to learn the relationships among words or sub-words, hence the accuracy of prediction is higher under large enough dataset with enough iterations \cite{BERTpros}. The downside to this is that it requires heavy computation resources and it can be very time-consuming. Therefore when accuracy and loss are similar, this model would rank lower among all candidate models. 
+
+Another model I considered was the Turi Create Official Recommender System from Apple Inc.,  a fast and flexible system aiming at IOS and macOS \cite{graph}. It is an item-item similarity model. Its goal is to recommend items to the given user, as well as predict ratings given the item and user. Details on the model are not released, but its input data types, \texttt{reviewerID}, \texttt{itemID} and label \texttt{overall}, indicate that the model focuses on user-item similarity rather than the review contents. With enough individual reviewer and item information, this model is surely capable of predicting ratings accurately; however as mentioned in the data section, the amount of data for any particular person and item is very limited in the given training data. Therefore this model is only used as my design baseline, as underfitting is likely to occur without using the review contents in this case.
+
+\section{Result \& Comparisons}
+The results of running each model can be found in the following figures. Figure \ref{fig:gru} shows the loss and accuracy for GRU, and Figure \ref{fig:tr} shows the loss and accuracy for TFBert. The difference in number of epochs is caused by a callback function which is triggered once validation loss rises after the current epoch.
+
+For GRU, the training stopped at epoch 4. The training loss and accuracy increased, and validation loss reached the minimal at the 3rd epoch. The minimum validation loss is 0.6038 and the corresponding validation accuracy is 0.7595. The total training and validation time is around 1200 secs. For TFBert, the training stopped at epoch 3. The minimum validation loss is 0.5996 and the corresponding validation accuracy is 0.7579. The total training and validation time is around 10800 secs (or 3 hrs). Lastly, for Turi Create, its minimum validation loss is 0.8964 and the training finished within 5 seconds. Training process for the recommender system is not published, so no intermediate loss can be found. Also since it is regression rather than classification, we cannot tell the accuracy either. 
+
+According to the results, in terms of validation loss and accuracy, GRU performs much better than the baseline Turi Create Recommender System. This is mostly because of the different features used in the two models. Shortage on individual reviewer and item data leads to underfitting of the Turi Create System, and thus its high validation loss. On the other hand, the review contents provide sufficient data for training, so both GRU and TFBert performed better. However, in terms of time taken, TFBert’s three hour is 9 times GRU’s 20 minutes, yet its validation loss and validation accuracy do not differ much from those of GRU. This significant variation in time is due to the number of parameters TFBert needs, which is over 1 million in this case. As efficiency plays a more and more important role in our daily lives, we can conclude that GRU, with its acceptable performance and much fewer parameters needed, can be an efficient model for recommender systems.
 \begin{figure}[h!]
     \centering
-    \includegraphics{gru_loss.pdf}
-    \includegraphics{gru_accuracy.pdf}
+    \includegraphics[width=70mm,scale=0.5]{gru_loss.pdf}
+    \includegraphics[width=70mm,scale=0.5]{gru_accuracy.pdf}
     \caption{GRU model loss and accuracy}
     \label{fig:gru}
 \end{figure}
 \begin{figure}[h!]
     \centering
-    \includegraphics{trans_loss.png}
-    \includegraphics{trans_acc.png}
+    \includegraphics[width=70mm,scale=0.5]{trans_loss.png}
+    \includegraphics[width=70mm,scale=0.5]{trans_acc.png}
     \caption{TFBertModel model loss and accuracy}
     \label{fig:tr}
+    \vspace{-0.5cm}
 \end{figure}
 \section{Conclusion}
-As online market becomes more popular, the relative predictions about item rating, item recommendation, etc 
-should be fast, accurate and feasible. The project makes use of GRU as main layer. The model is capable of
-predicting rating stars with high accuracy through analyzing the most used word sequences from reviews.
-Besides, it saves much training time and saves computation resources. The project will provide an idea
-about wide online market item recommendation.
+With e-commerce becoming more popular, there will be higher demand for predicting programs on item rating, item recommendation and so on. Requirements for such programs would be fast, accurate and easy to adapt. This project uses GRU as the main layer to create a model that is capable of predicting user ratings with high accuracy by analyzing the most used word sequences from reviews. Through comparisons to other popular models, GRU is proven to yield good validation accuracy while using less training time and computational resources. Hence this model is a good starting point for building online recommendation systems. However, considering the accessibility of data in real life, there might be models that can make better use of what’s available, for instance combining reviewer and item information with the review contents to make more reliable predictions. These are certainly interesting areas to explore if there is more time for the project.
+
 \medskip
-\begin{thebibliography}{12}
-    
+\begin{thebibliography}{12} 
     \bibitem{imdb} 
-    tf.keras.datasets.imdb.load\_data
+    tf.keras.datasets.imdb.load\_data : TensorFlow Core v2.3.1
     \\\url{https://www.tensorflow.org/api\_docs/python/tf/keras/datasets/imdb/load\_data}
-
     \bibitem{gru} 
-    Understanding GRU Networks
+    Kostadinov, S. (2019, November 10). Understanding GRU Networks. Retrieved December 09, 2020, from
     \\\url{https://towardsdatascience.com/understanding-gru-networks-2ef37df6c9be}
-
     \bibitem{lstm} 
-    Long Short-Term Memory (LSTM): Concept
+    Kang, E. (2017, September 01). Long Short-Term Memory (LSTM): Concept. Retrieved December 09, 2020, from 
     \\\url{https://medium.com/\@kangeugine/long-short-term-memory-lstm-concept-cb3283934359\#:~:text=LSTM\%20is\%20well\%2Dsuited\%20to,and\%20other\%20sequence\%20learning\%20methods.\&text=The\%20structure\%20of\%20RNN\%20is,hidden\%20Markov\%20model.}
     
     \bibitem{Textclassification}
-    Text classification with an RNN
+    Text classification with an RNN \&nbsp;: \&nbsp; TensorFlow Core. (n.d.). Retrieved December 09, 2020, from
     \\\url{https://www.tensorflow.org/tutorials/text/text\_classification\_rnn}
 
     \bibitem{BERT}
-    Multi-Label, Multi-Class Text Classification with BERT, Transformers and Keras
+    Jensen, E. (2020, August 25). Multi-Label, Multi-Class Text Classification with BERT, Transformer and Keras. Retrieved December 09, 2020, from
     \\\url{https://towardsdatascience.com/multi-label-multi-class-text-classification-with-bert-transformer-and-keras-c6355eccb63a}
 
     \bibitem{BERTpros}
-    BERT Explained: State of the art language model for NLP
+    Horev, R. (2018, November 17). BERT Explained: State of the art language model for NLP. Retrieved December 09, 2020, from
     \\\url{https://towardsdatascience.com/bert-explained-state-of-the-art-language-model-for-nlp-f8b21a9b6270}
 
     \bibitem{trans}
-    What is a Transformer?
+    Maxime. (2020, March 05). What is a Transformer? Retrieved December 09, 2020, from
     \\\url{https://medium.com/inside-machine-learning/what-is-a-transformer-d07dd1fbec04}
 
     \bibitem{emd}
-    Deep Learning \#4: Why You Need to Start Using Embedding Layers
+    Ruizendaal, R. (2020, June 02). Deep Learning \#4: Why You Need to Start Using Embedding Layers. Retrieved December 09, 2020, from
     \\\url{https://towardsdatascience.com/deep-learning-4-embedding-layers-f9a02d55ac12}
 
     \bibitem{graph}
-    Apple release 'Turi Create' Machine Learning Framework on Github
+    Admin. (2018, January 17). Apple release \'Turi Create\' Machine Learning Framework on Github. Retrieved December 09, 2020, from
     \\\url{https://todobi.com/apple-release-turi-create-machine/}
-    \\\url{https://towardsdatascience.com/deep-learning-4-embedding-layers-f9a02d55ac12}
-    \\\url{https://apple.github.io/turicreate/docs/api/generated/turicreate.recommender.create.html#turicreate.recommender.create}
+    % \\\url{https://towardsdatascience.com/deep-learning-4-embedding-layers-f9a02d55ac12}
+    % \\\url{https://apple.github.io/turicreate/docs/api/generated/turicreate.recommender.create.html#turicreate.recommender.create}
 
     \end{thebibliography}
 
