@@ -34,6 +34,7 @@ My base model consists of an input layer, a classification layer and a dense lay
 
 In terms of optimization to the model, I added Dropout layer before the Dense output layer to avoid overfitting. I also replaced the simple input layer with an embedding layer that converts data into multidimensional to shorten input data size \cite{emd}. This helps the similarity among sentences and words to stand out. Through experiment, it is found that encoding to 32-D results in the lowest validation loss, so the output dimension of the embedding layer is set to 32. The final specifications of the model can be seen in \ref{table:ms}.
 \begin{table}[h!]
+    \small
     \centering
         \begin{tabular}{|c|c|c|}
         \hline
@@ -50,6 +51,7 @@ In terms of optimization to the model, I added Dropout layer before the Dense ou
         \end{tabular}
     \caption{Model structure}
     \label{table:ms}
+    \vspace{-0.7cm}
 \end{table}
 \section{Alternative Models}
 One alternative I considered was the Transformer Bert Model (TFBert), a transformer model popular for next-line predictions \cite{BERT, trans}. This architecture provides an effective attention-based mechanism for neural language translation. Similar to my proposed model, the input dataset for this model is the concatenated string of \texttt{reviewText} and \texttt{summary}, with the string sequences encoded into \texttt{input\_ids} list; the label is \texttt{overall}; and the output is a multiclass classification result corresponding to the rating. Layers involved in this model are the Input Layer, the TFBertMainLayer, the Dropout Layer and the Dense Output Layer. TFBert makes use of the transformer structure to learn the relationships among words or sub-words, hence the accuracy of prediction is higher under large enough dataset with enough iterations \cite{BERTpros}. The downside to this is that it requires heavy computation resources and it can be very time-consuming. Therefore when accuracy and loss are similar, this model would rank lower among all candidate models. 
@@ -68,6 +70,7 @@ According to the results, in terms of validation loss and accuracy, GRU performs
     \includegraphics[width=70mm,scale=0.5]{gru_accuracy.pdf}
     \caption{GRU model loss and accuracy}
     \label{fig:gru}
+    \vspace{-0.5cm}
 \end{figure}
 \begin{figure}[h!]
     \centering
